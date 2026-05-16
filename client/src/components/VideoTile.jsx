@@ -33,7 +33,7 @@ export default function VideoTile({ stream, displayName, muted = false, audioOn 
         playsInline
         muted={muted}
         style={{
-          width: "60%",
+          width: "100%",
           height: "100%",
           objectFit: "cover",
           transform: isLocal && !isScreenShare ? "scaleX(-1)" : "none", // mirror local camera only
