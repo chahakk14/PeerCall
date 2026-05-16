@@ -1,0 +1,11 @@
+# Environment variables
+.env
+
+# Node modules (if using Node.js)
+node_modules/
+
+# Python cache
+__pycache__/
+
+# Mac files
+.DS_Store

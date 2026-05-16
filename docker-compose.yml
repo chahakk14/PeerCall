@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  signaling:
+    build: ./server
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - CLIENT_URL=http://localhost:5173
+    restart: unless-stopped
+
+  # Optional TURN server for strict NAT environments
+  # coturn:
+  #   image: coturn/coturn:latest
+  #   network_mode: host
+  #   volumes:
+  #     - ./coturn/turnserver.conf:/etc/coturn/turnserver.conf
+  #   restart: unless-stopped
