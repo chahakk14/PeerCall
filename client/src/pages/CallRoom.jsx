@@ -7,7 +7,7 @@ import Controls from "../components/Controls.jsx";
 import ChatPanel from "../components/ChatPanel.jsx";
 import ParticipantPanel from "../components/ParticipantPanel.jsx";
 
-export default function CallRoom({ roomId, displayName, onLeave }) {
+export default function CallRoom({ roomId, displayName, audioEnabled = true, videoEnabled = true, audioDeviceId, videoDeviceId, onLeave }) {
   const { socketRef, connected } = useSocket();
   const {
     stream: localStream,
@@ -15,7 +15,7 @@ export default function CallRoom({ roomId, displayName, onLeave }) {
     isScreenSharing,
     toggleAudio, toggleVideo,
     startScreenShare, stopScreenShare,
-  } = useLocalMedia();
+  } = useLocalMedia({ audioEnabled, videoEnabled, audioDeviceId, videoDeviceId });
 
   const { remoteStreams, peerStates } = useWebRTC({
     socketRef, roomId, displayName, localStream,

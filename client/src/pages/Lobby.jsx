@@ -142,6 +142,37 @@ const styles = {
     borderRadius: "var(--radius-sm)",
     background: "#000",
   },
+  previewOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: "12px",
+    display: "flex",
+    justifyContent: "center",
+    gap: "12px",
+    pointerEvents: "none",
+  },
+  previewButton: {
+    pointerEvents: "auto",
+    width: "44px",
+    height: "44px",
+    borderRadius: "50%",
+    border: "1px solid rgba(255,255,255,0.2)",
+    background: "rgba(0,0,0,0.5)",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+  },
+  previewButtonOff: {
+    background: "rgba(226,75,74,0.85)",
+    border: "1px solid rgba(226,75,74,0.9)",
+  },
+  previewButtonOn: {
+    background: "rgba(29,158,117,0.85)",
+    border: "1px solid rgba(29,158,117,0.9)",
+  },
   fieldGroupSettings: {
     display: "flex",
     gap: "16px",
@@ -181,6 +212,37 @@ function randomId() {
   return Math.random().toString(36).slice(2, 8).toUpperCase();
 }
 
+function MicIcon({ on }) {
+  return on ? (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+      <path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/>
+    </svg>
+  ) : (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="1" y1="1" x2="23" y2="23"/>
+      <path d="M9 9v3a3 3 0 005.12 2.12M15 9.34V4a3 3 0 00-5.94-.6"/>
+      <path d="M17 16.95A7 7 0 015 12v-2m14 0v2a7 7 0 01-.11 1.23"/>
+      <line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
+    </svg>
+  );
+}
+
+function CameraIcon({ on }) {
+  return on ? (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <polygon points="23 7 16 12 23 17 23 7"/>
+      <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+    </svg>
+  ) : (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M16 16v1a2 2 0 01-2 2H3a2 2 0 01-2-2V7a2 2 0 012-2h2m5.66 0H14a2 2 0 012 2v3.34"/>
+      <polygon points="23 7 16 12 23 17 23 7"/>
+      <line x1="1" y1="1" x2="23" y2="23"/>
+    </svg>
+  );
+}
+
 export default function Lobby({ onJoin }) {
   const [mode, setMode] = useState("join");
   const [roomId, setRoomId] = useState("");
@@ -190,7 +252,9 @@ export default function Lobby({ onJoin }) {
   const [selectedAudioIn, setSelectedAudioIn] = useState("");
   const [selectedVideoIn, setSelectedVideoIn] = useState("");
   const [selectedAudioOut, setSelectedAudioOut] = useState("");
-  const [previewStream, setPreviewStream] = useState(null);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [videoEnabled, setVideoEnabled] = useState(true);
+  const previewStreamRef = useRef(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const videoRef = useRef(null);
 
@@ -222,19 +286,45 @@ export default function Lobby({ onJoin }) {
 
   useEffect(() => {
     async function updatePreview() {
+      if (!videoEnabled && !audioEnabled) {
+        if (previewStreamRef.current) {
+          previewStreamRef.current.getTracks().forEach((track) => track.stop());
+          previewStreamRef.current = null;
+        }
+        if (videoRef.current) {
+          videoRef.current.srcObject = null;
+        }
+        return;
+      }
       if (!selectedVideoIn && !selectedAudioIn) return;
       setLoadingPreview(true);
-      if (previewStream) {
-        previewStream.getTracks().forEach((track) => track.stop());
-        setPreviewStream(null);
+      if (previewStreamRef.current) {
+        previewStreamRef.current.getTracks().forEach((track) => track.stop());
+        previewStreamRef.current = null;
       }
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: selectedVideoIn ? { deviceId: { exact: selectedVideoIn } } : true,
-          audio: selectedAudioIn ? { deviceId: { exact: selectedAudioIn } } : true,
+          video: videoEnabled
+            ? selectedVideoIn
+              ? { deviceId: { exact: selectedVideoIn } }
+              : true
+            : false,
+          audio: audioEnabled
+            ? selectedAudioIn
+              ? { deviceId: { exact: selectedAudioIn } }
+              : true
+            : false,
         });
-        setPreviewStream(stream);
+
+        if (!videoEnabled) {
+          stream.getVideoTracks().forEach((track) => (track.enabled = false));
+        }
+        if (!audioEnabled) {
+          stream.getAudioTracks().forEach((track) => (track.enabled = false));
+        }
+
+        previewStreamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
@@ -247,9 +337,10 @@ export default function Lobby({ onJoin }) {
 
     updatePreview();
     return () => {
-      previewStream?.getTracks().forEach((track) => track.stop());
+      previewStreamRef.current?.getTracks().forEach((track) => track.stop());
+      previewStreamRef.current = null;
     };
-  }, [selectedVideoIn, selectedAudioIn]);
+  }, [selectedVideoIn, selectedAudioIn, videoEnabled, audioEnabled]);
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -274,14 +365,24 @@ export default function Lobby({ onJoin }) {
     if (!name) return setError("Please enter your name.");
     if (!room) return setError("Please enter a room code.");
     setError("");
-    onJoin(room, name);
+    onJoin(room, name, {
+      audioEnabled,
+      videoEnabled,
+      audioDeviceId: selectedAudioIn,
+      videoDeviceId: selectedVideoIn,
+    });
   }
 
   function handleCreate() {
     const name = displayName.trim();
     if (!name) return setError("Please enter your name first.");
     setError("");
-    onJoin(randomId(), name);
+    onJoin(randomId(), name, {
+      audioEnabled,
+      videoEnabled,
+      audioDeviceId: selectedAudioIn,
+      videoDeviceId: selectedVideoIn,
+    });
   }
 
   function handleKey(e) {
@@ -313,6 +414,30 @@ export default function Lobby({ onJoin }) {
               playsInline
               muted
             />
+            <div style={styles.previewOverlay}>
+              <button
+                type="button"
+                aria-label={audioEnabled ? "Microphone on" : "Microphone off"}
+                style={{
+                  ...styles.previewButton,
+                  ...(audioEnabled ? styles.previewButtonOn : styles.previewButtonOff),
+                }}
+                onClick={() => setAudioEnabled((prev) => !prev)}
+              >
+                <MicIcon on={audioEnabled} />
+              </button>
+              <button
+                type="button"
+                aria-label={videoEnabled ? "Camera on" : "Camera off"}
+                style={{
+                  ...styles.previewButton,
+                  ...(videoEnabled ? styles.previewButtonOn : styles.previewButtonOff),
+                }}
+                onClick={() => setVideoEnabled((prev) => !prev)}
+              >
+                <CameraIcon on={videoEnabled} />
+              </button>
+            </div>
           </div>
           <div style={styles.fieldGroupSettings}>
             <div>
@@ -364,9 +489,6 @@ export default function Lobby({ onJoin }) {
               </select>
             </div>
           </div>
-          {loadingPreview && (
-            <div style={{ color: "var(--text2)", fontSize: "13px" }}>Loading preview…</div>
-          )}
         </div>
 
         <div style={styles.card}>

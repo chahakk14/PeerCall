@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
-export function useLocalMedia() {
+export function useLocalMedia(options = {}) {
   const [stream, setStream] = useState(null);
-  const [audio, setAudio] = useState(true);
-  const [video, setVideo] = useState(true);
+  const [audio, setAudio] = useState(options.audioEnabled ?? true);
+  const [video, setVideo] = useState(options.videoEnabled ?? true);
   const [error, setError] = useState(null);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
 
@@ -16,10 +16,30 @@ export function useLocalMedia() {
     async function init() {
       try {
         localStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 1280, height: 720, facingMode: "user" },
-          audio: { echoCancellation: true, noiseSuppression: true },
+          video: {
+            width: 1280,
+            height: 720,
+            facingMode: "user",
+            ...(options.videoDeviceId ? { deviceId: { exact: options.videoDeviceId } } : {}),
+          },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            ...(options.audioDeviceId ? { deviceId: { exact: options.audioDeviceId } } : {}),
+          },
         });
-        cameraTrackRef.current = localStream.getVideoTracks()[0];
+
+        const audioTrack = localStream.getAudioTracks()[0];
+        const videoTrack = localStream.getVideoTracks()[0];
+
+        if (audioTrack) {
+          audioTrack.enabled = options.audioEnabled ?? true;
+        }
+        if (videoTrack) {
+          videoTrack.enabled = options.videoEnabled ?? true;
+          cameraTrackRef.current = videoTrack;
+        }
+
         setStream(localStream);
       } catch (err) {
         setError(err.message);
@@ -32,7 +52,7 @@ export function useLocalMedia() {
     return () => {
       localStream?.getTracks().forEach((t) => t.stop());
     };
-  }, []);
+  }, [options.audioEnabled, options.videoEnabled, options.audioDeviceId, options.videoDeviceId]);
 
   function toggleAudio() {
     if (!stream) return;
