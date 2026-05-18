@@ -4,11 +4,8 @@
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react&logoColor=black)
 ![Socket.io](https://img.shields.io/badge/Socket.io-4.x-010101?style=flat&logo=socket.io)
 ![WebRTC](https://img.shields.io/badge/WebRTC-P2P-333333?style=flat&logo=webrtc)
-![License](https://img.shields.io/badge/license-MIT-green?style=flat)
 
 A production-quality, real-time video calling web app built from scratch using **WebRTC**, **React**, and **Node.js**. Video and audio stream **directly between browsers (peer-to-peer)** — the server only brokers the initial connection handshake and never touches your media.
-
-> 🔗 **Live Demo:** [your-demo-link.vercel.app](https://your-demo-link.vercel.app) &nbsp;|&nbsp; **Backend:** [your-server.railway.app](https://your-server.railway.app/health)
 
 ---
 
@@ -35,7 +32,7 @@ A production-quality, real-time video calling web app built from scratch using *
 | Signaling | Node.js + Socket.io | SDP & ICE exchange |
 | NAT Traversal | STUN (Google) | Cross-network connectivity |
 | Styling | Vanilla CSS (CSS vars) | Theming, dark UI |
-| Deployment | Vercel + Railway | Client + server hosting |
+<!--| Deployment | Vercel + Railway | Client + server hosting | -->
 
 ---
 
@@ -177,32 +174,6 @@ cd client && npm run dev
 
 ---
 
-## 🌍 Deployment
-
-### Client → Vercel
-
-```bash
-cd client && npm run build
-```
-
-1. Push to GitHub
-2. Import repo in [Vercel](https://vercel.com)
-3. Add environment variable: `VITE_SERVER_URL=https://your-server.railway.app`
-4. Deploy ✅
-
-### Server → Railway
-
-1. Push repo to GitHub
-2. Create a new project at [Railway](https://railway.app)
-3. Point it to the `server/` directory
-4. Add environment variables:
-   ```
-   PORT=3001
-   CLIENT_URL=https://your-app.vercel.app
-   ```
-5. Deploy ✅
-
----
 
 ## 🔧 Environment Variables
 
@@ -283,12 +254,6 @@ git commit -m "feat: your feature description"
 git push origin feature/your-feature
 # Open a PR
 ```
-
----
-
-## 📄 License
-
-[MIT](./LICENSE) — free to use, modify, and distribute.
 
 ---
 
