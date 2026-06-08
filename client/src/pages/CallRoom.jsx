@@ -6,6 +6,7 @@ import VideoTile from "../components/VideoTile.jsx";
 import Controls from "../components/Controls.jsx";
 import ChatPanel from "../components/ChatPanel.jsx";
 import ParticipantPanel from "../components/ParticipantPanel.jsx";
+import Whiteboard from "../components/Whiteboard.jsx";
 
 export default function CallRoom({ roomId, displayName, audioEnabled = true, videoEnabled = true, audioDeviceId, videoDeviceId, onLeave }) {
   const { socketRef, connected } = useSocket();
@@ -23,6 +24,7 @@ export default function CallRoom({ roomId, displayName, audioEnabled = true, vid
 
   const [chatOpen, setChatOpen] = useState(false);
   const [participantsOpen, setParticipantsOpen] = useState(false);
+  const [whiteboardOpen, setWhiteboardOpen] = useState(false);
   const [speakingMap, setSpeakingMap] = useState({}); // { id: rms }
   const audioCtxRef = useRef(null);
   const analyserRefs = useRef({});
@@ -198,14 +200,17 @@ export default function CallRoom({ roomId, displayName, audioEnabled = true, vid
       </div>
 
       {/* Main area */}
-      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        {/* Video grid */}
+      <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
         <div style={{
-          flex: 1, padding: "12px", overflow: "hidden",
           display: "grid",
-          gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
-          gridTemplateRows: `repeat(${gridRows}, 1fr)`,
+          gridTemplateColumns: whiteboardOpen ? "1fr" : `repeat(${gridCols}, 1fr)`,
+          gridTemplateRows: whiteboardOpen ? `repeat(${totalTiles}, 1fr)` : `repeat(${gridRows}, 1fr)`,
           gap: "10px",
+          flex: whiteboardOpen ? "0 0 20%" : "1",
+          minWidth: 0,
+          padding: "12px",
+          overflowY: whiteboardOpen ? "auto" : "hidden",
+          overflowX: "hidden",
           alignContent: "stretch",
           justifyItems: "stretch",
         }}>
@@ -234,6 +239,12 @@ export default function CallRoom({ roomId, displayName, audioEnabled = true, vid
           {/* Waiting message removed per user request */}
         </div>
 
+        {whiteboardOpen && (
+          <div style={{ flex: 1, minWidth: 0, overflow: "hidden", padding: "12px", display: "flex", flexDirection: "column" }}>
+            <Whiteboard socketRef={socketRef} roomId={roomId} />
+          </div>
+        )}
+
         {/* Right sidebar - Participants or Chat */}
         {(participantsOpen || chatOpen) && (
           <div style={{ display: "flex" }}>
@@ -261,12 +272,14 @@ export default function CallRoom({ roomId, displayName, audioEnabled = true, vid
         isScreenSharing={isScreenSharing}
         chatOpen={chatOpen}
         participantsOpen={participantsOpen}
+        whiteboardOpen={whiteboardOpen}
         isSpeaking={speakingMap.local > 0.02}
         onToggleAudio={toggleAudio}
         onToggleVideo={toggleVideo}
         onToggleScreen={handleToggleScreen}
         onToggleChat={() => setChatOpen((v) => !v)}
         onToggleParticipants={() => setParticipantsOpen((v) => !v)}
+        onToggleWhiteboard={() => setWhiteboardOpen((v) => !v)}
         onLeave={handleLeave}
       />
     </div>

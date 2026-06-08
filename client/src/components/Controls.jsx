@@ -92,6 +92,17 @@ function PeopleIcon() {
   );
 }
 
+function BoardIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="5" width="18" height="14" rx="2" ry="2" />
+      <line x1="7" y1="9" x2="17" y2="9" />
+      <line x1="7" y1="13" x2="13" y2="13" />
+      <line x1="7" y1="17" x2="11" y2="17" />
+    </svg>
+  );
+}
+
 function PhoneIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -102,8 +113,8 @@ function PhoneIcon() {
 }
 
 export default function Controls({
-  audio, video, isScreenSharing, chatOpen, participantsOpen, isSpeaking,
-  onToggleAudio, onToggleVideo, onToggleScreen, onToggleChat, onToggleParticipants, onLeave,
+  audio, video, isScreenSharing, chatOpen, participantsOpen, whiteboardOpen, isSpeaking,
+  onToggleAudio, onToggleVideo, onToggleScreen, onToggleChat, onToggleParticipants, onToggleWhiteboard, onLeave,
 }) {
   return (
     <div style={{
@@ -142,6 +153,11 @@ export default function Controls({
       <button style={chatOpen ? btnActive : btnBase} onClick={onToggleChat}>
         <ChatIcon />
         Chat
+      </button>
+
+      <button style={whiteboardOpen ? btnActive : btnBase} onClick={onToggleWhiteboard}>
+        <BoardIcon />
+        Whiteboard
       </button>
 
       <button style={btnDanger} onClick={onLeave}>

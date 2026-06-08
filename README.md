@@ -8,7 +8,7 @@
 
 A production-quality, real-time video calling web app built from scratch using **WebRTC**, **React**, and **Node.js**. Video and audio stream **directly between browsers (peer-to-peer)** — the server only brokers the initial connection handshake and never touches your media.
 
-> 🔗 **Live Demo:** [your-demo-link.vercel.app](https://your-demo-link.vercel.app) &nbsp;|&nbsp; **Backend:** [your-server.railway.app](https://your-server.railway.app/health)
+<!-- > 🔗 **Live Demo:** [your-demo-link.vercel.app](https://your-demo-link.vercel.app) &nbsp;|&nbsp; **Backend:** [your-server.railway.app](https://your-server.railway.app/health) -->
 
 ---
 
@@ -142,7 +142,7 @@ Default values work out of the box for local development.
 cd server && npm install
 
 # Client
-cd ../client && npm install
+cd client && npm install
 ```
 
 ### 4. Run the app

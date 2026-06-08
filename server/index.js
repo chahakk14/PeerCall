@@ -21,6 +21,7 @@ app.use(express.json());
 
 // In-memory room store: { roomId -> Map<socketId, { displayName, socketId }> }
 const rooms = new Map();
+const whiteboards = new Map();
 
 function getRoomInfo(roomId) {
   const room = rooms.get(roomId);
@@ -53,6 +54,10 @@ io.on("connection", (socket) => {
     // Send current peers to the joiner
     const peers = getRoomInfo(roomId).filter((p) => p.socketId !== socket.id);
     socket.emit("room-joined", { roomId, peers });
+    socket.emit("whiteboard-state", {
+      roomId,
+      operations: whiteboards.get(roomId) ?? [],
+    });
 
     // Notify existing peers
     socket.to(roomId).emit("peer-joined", { socketId: socket.id, displayName });
@@ -80,6 +85,19 @@ io.on("connection", (socket) => {
       audio,
       video,
     });
+  });
+
+  socket.on("whiteboard-operation", ({ roomId, operation }) => {
+    if (!roomId || !operation) return;
+    if (!whiteboards.has(roomId)) whiteboards.set(roomId, []);
+
+    if (operation.type === "clear") {
+      whiteboards.set(roomId, []);
+    } else {
+      whiteboards.get(roomId).push(operation);
+    }
+
+    socket.to(roomId).emit("whiteboard-operation", operation);
   });
 
   // ─── Chat (fallback via server; DataChannel used P2P when available) ─
