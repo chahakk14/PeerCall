@@ -7,7 +7,6 @@
 
 A production-quality, real-time video calling web app built from scratch using **WebRTC**, **React**, and **Node.js**. Video and audio stream **directly between browsers (peer-to-peer)** — the server only brokers the initial connection handshake and never touches your media.
 
-> 🔗 **Live Demo:** [your-demo-link.vercel.app](https://your-demo-link.vercel.app) &nbsp;|&nbsp; **Backend:** [your-server.railway.app](https://your-server.railway.app/health)
 
 ---
 
@@ -16,6 +15,7 @@ A production-quality, real-time video calling web app built from scratch using *
 - 🎥 **Peer-to-peer video & audio** — direct browser-to-browser using WebRTC `RTCPeerConnection`
 - 🔇 **Mute / camera toggle** — instantly via `track.enabled`, no renegotiation
 - 🖥️ **Screen sharing** — swap tracks live with `RTCRtpSender.replaceTrack()`
+- 🧠 **Collaborative whiteboard** — shared drawing canvas synced in real time via Socket.io
 - 💬 **In-call text chat** — real-time via Socket.io
 - 👥 **Multi-user rooms** — mesh topology, one connection per remote peer
 - 🌐 **NAT traversal** — STUN servers for cross-network calls (TURN-ready)
@@ -91,7 +91,8 @@ webrtc-app/
 │   │   ├── components/
 │   │   │   ├── VideoTile.jsx     # Single participant video
 │   │   │   ├── Controls.jsx      # Mute / video / screen / chat / leave
-│   │   │   └── ChatPanel.jsx     # Slide-in chat panel
+│   │   │   ├── ChatPanel.jsx     # Slide-in chat panel
+│   │   │   └── Whiteboard.jsx    # Collaborative shared drawing board
 │   │   ├── pages/
 │   │   │   ├── Lobby.jsx         # Room join / create UI
 │   │   │   └── CallRoom.jsx      # Active call view
